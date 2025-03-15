@@ -5,7 +5,7 @@ const PORT = 8000;
 const app = express();
 
 const db = new sqlite3.Database("user.db")
-db.serialize( () => {
+db.serialize(() => {
     db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT)");
 });
 
@@ -18,7 +18,7 @@ const login = 'Vc está na página "login"<br><a href="/">Voltar</a>'
 const cadastro = 'Vc está na página "cadastro"<br><a href="/">Voltar</a>'
 
 app.get("/", (req, res) => {
-res.send(index);
+    res.send(index);
 });
 
 // Você não pode usar um mesmo ponto de rota
