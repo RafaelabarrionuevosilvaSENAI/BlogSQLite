@@ -26,62 +26,94 @@ app.use(bodyParser.urlencoded({ extended: true}));
 // configurar EJS como o motor de visualização 
 app.set("view engine", "ejs")
 
-// const index = "<a href='/sobre'>Sobre</a> <br> <a href='/login'>Login</a> <br> <a href='/cadastro'>Cadastro</a> <br> <a href='/dashboard'>Dashboard</a> <br> <a href='/home'>Home</a> <br> <a href='/descricao'>Descricao</a>"
-// const sobre = 'Vc está na página "sobre"<br><a href="/">Voltar</a>'
-// const login = 'Vc está na página "login"<br><a href="/">Voltar</a>'
-// const cadastro = 'Vc está na página "cadastro"<br><a href="/">Voltar</a>'
-// const dashboard = 'vc está na página "dashboard"<br><a href="/">Voltar</a>'
-// const home = 'vc está na página "home"<br><a href="/">Voltar</a>'
-// const descricao = 'vc está na página "descrição"<br><a href="/">Voltar</a>'
+const index = "<a href='/sobre'>Sobre</a> <br> <a href='/login'>Login</a> <br> <a href='/cadastro'>Cadastro</a> <br> <a href='/dashboard'>Dashboard</a> <br> <a href='/home'>Home</a> <br> <a href='/descricao'>Descricao</a>"
+//const sobre = "sobre"
+const login = "login"
+//const cadastro = 'Vc está na página "cadastro"<br><a href="/">Voltar</a>'
+const dashboard = 'vc está na página "dashboard"<br><a href="/">Voltar</a>'
+const home = 'vc está na página "home"<br><a href="/">Voltar</a>'
+const descricao = 'vc está na página "descrição"<br><a href="/">Voltar</a>'
 
 app.get("/", (req, res) => {
-   // res.send(index);
-    res.render("index");
+    //res.send(index);
+    console.log("GET /index");
+    res.render("index")
+    //res.redirect("/cadastro");
 });
 
-// Você não pode usar um mesmo ponto de rota
-// app.get('/', (req, res) => {
-//     res.send("olá SESI!");
-// });
 
 
 
 app.get("/sobre", (req, res) => {
-    res.send(sobre);
+console.log("GET /sobre")
+    res.render("sobre");
 });
 
 app.get("/login", (req, res) => {
+    console.log("GET /login")
     res.render(login);
 
 });
 
-app.post("/cadastro", (req, res) => {
-    res.sender(cadastro)
-})
+app.post("/login", (req, res) => {
+    console.log("POST /login")
+    res.send(login);
+
+});
 
 app.post("/cadastro",(req, res)  => {
-    req.body
-    ? console.log(JSON.stringify(req.body))
-    : console.log(`Body vazio: ${req.body}`);
+    console.log("POST /cadastro")
 
-    res.send(
-`bem-vindo usúario: ${req.body.username}, seu email e ${req.body.email}`
-    )
+    !req.body
+    ? console.log(`Body vazio: ${req.body}`)
+    : console.log(JSON.stringify(req.body));
+
+    const { username, password, email, celular, cpf, rg} = req.body;
+
+
+    const query = "SELECT * FROM users WHERE email=? OR cpf=? OR rg? OR username=?"
+    db.get(query, [email, cpf. rg. username], (err, row) => {
+if(err) throw err;
+console.log(`${JSON.stringify(row)}`)
+if(row) {
+    // a variavel 'row' irá retornar os dados do banco de dados,
+    // executado através do SQL, variável query
+    res.send("Usuário ja cadastrado, refaça o cadastro")
+} else {
+// Se o usuário não existe no banco cadastrar
+const insertQuery = "INSERT INTO user(username, password, email, celular, cpf, rg) VALUES (?,?,?,?,?,?)"
+db.run(
+    insertQuery,
+    [username, password, email, celular, cpf, rg],
+    (err) => {
+        if (err) throw err;
+        res.send("Usuário cadastrado, com sucesso")
+    }
+);
+}
+    });
+// res.send(
+// `bem-vindo usúario: ${req.body.username}, seu email e ${req.body.email}`
+//     )
 });
 
 app.get("/cadastro", (req, res) => {
-    res.send(cadastro);
+    console.log("GET /cadastro")
+    res.render("cadastro");
 });
 
 app.get("/dashboard", (req, res) => {
+    console.log("GET /dashboard")
     res.send(dashboard);
 });
 
 app.get("/home", (req, res) => {
+    console.log("GET /home")
     res.send(home);
 });
 
 app.get("/descricao", (req, res) => {
+    console.log("GET /descricao")
     res.send(descricao);
 })
 
