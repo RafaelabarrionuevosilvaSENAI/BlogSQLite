@@ -41,9 +41,6 @@ app.get("/", (req, res) => {
     //res.redirect("/cadastro");
 });
 
-
-
-
 app.get("/sobre", (req, res) => {
 console.log("GET /sobre")
     res.render("sobre");
@@ -68,8 +65,19 @@ app.post("/cadastro",(req, res)  => {
     ? console.log(`Body vazio: ${req.body}`)
     : console.log(JSON.stringify(req.body));
 
+app.get("/usuarios", (req, res) => {
+    const query = "SELECT * FROM users";
+    db.all(query, (err, row) => {
+        console.log(`GET /usuarios ${JSON.stringify(row)}`)
+    res.send("Lista de usuários.")
+    })
+})
+
     const { username, password, email, celular, cpf, rg} = req.body;
 
+  // Colocar aqui as validações e inclusao no banco de dados do cadastro do usuario
+  // 1. validar cadastro
+  // 2. saber se ele ja existe no banco  
 
     const query = "SELECT * FROM users WHERE email=? OR cpf=? OR rg? OR username=?"
     db.get(query, [email, cpf. rg. username], (err, row) => {
@@ -123,5 +131,4 @@ app.get("/descricao", (req, res) => {
 app.listen(PORT, () => {
     console.log(`servidor sendo executado na porta ${PORT}`);
 });
-
-
+  
