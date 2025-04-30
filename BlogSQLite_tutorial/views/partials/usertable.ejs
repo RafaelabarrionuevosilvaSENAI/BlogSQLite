@@ -1,0 +1,26 @@
+<table>
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Nome</th>
+      <th scope="col">Email</th>
+      <th scope="col">Celular</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% for( let index = 0; index <8; index++) { %>
+      <% if (index % 3 == 0) { %>
+      <tr>
+      <td>
+        <p><%= index %></p>
+      </td>
+      <td>NOME</td>
+      <td>EMAIL</td>
+      <td>CELULAR</td>
+    </tr>
+<% } %>
+    <% } %>
+  </tbody>
+
+</table>

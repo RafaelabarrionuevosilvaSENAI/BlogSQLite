@@ -3,7 +3,11 @@ const sqlite3 = require("sqlite3");
 const PORT = 8000;
 const app = express();
 const db = new sqlite3.Database("user.db")
-const bodyParser = require("body-parser")
+const bodyParser = require("body-parser");
+const session = require("express-session");
+
+let config = {titulo: "", rodape: ""}
+
 
 db.serialize(() => {
 //este método permite enviar comandos SQL em modo 'sequencial'
@@ -12,6 +16,15 @@ db.serialize(() => {
        email TEXT, celular TEXT, cpf TEXT, rg TEXT)`
     );
 });
+
+// configuração para uso de sessão (cookies) com express
+app.use(
+    session({
+        secret: "qualquersenha",
+        resave: true,
+        saveUninitialized: true,
+    })
+);
 
 // _dirname é a variável interna do nodejs que guarda o caminho absoluto do projeyo, no 50
 // console.log(_dirname +"/static")
@@ -30,34 +43,78 @@ const index = "<a href='/sobre'>Sobre</a> <br> <a href='/login'>Login</a> <br> <
 //const sobre = "sobre"
 const login = "login"
 //const cadastro = 'Vc está na página "cadastro"<br><a href="/">Voltar</a>'
-const dashboard = 'vc está na página "dashboard"<br><a href="/">Voltar</a>'
+const dashboard = "dashboard"
 const home = 'vc está na página "home"<br><a href="/">Voltar</a>'
 const descricao = 'vc está na página "descrição"<br><a href="/">Voltar</a>'
 
 app.get("/", (req, res) => {
     //res.send(index);
-    console.log("GET /index");
-    res.render("index")
+    console.log("pages/index", config);
+    res.render("pages/index", { titulo: "Blog da turma I2HNA - SESI Nova Odessa"})
     //res.redirect("/cadastro");
 });
 
 app.get("/sobre", (req, res) => {
-console.log("GET /sobre")
-    res.render("sobre");
+console.log("pages/sobre", config)
+    res.render("pages/sobre");
 });
 
+
+
 app.get("/login", (req, res) => {
-    console.log("GET /login")
-    res.render(login);
+    console.log("pages/login", config)
+    res.render("pages/login");
 
 });
 
 app.post("/login", (req, res) => {
-    console.log("POST /login")
-    res.send(login);
+    console.log("POST /login", config)
+    const {username, password } = req.body
 
+// Consultar o usuario no banco de dados
+const query = "SELECT * FROM users WHERE username = ? AND password = ?"
+db.get( query, [username, password], (err,row) =>{
+  if(err) throw err;
+
+    // Se usuario válido -> registra a sessão e redireciona para o dashboard
+if(row) {
+req.session.loggedin = true;
+req.session.username = username
+res.redirect("/dashboard")
+}
+// Se não, envia a mensagem de erro (Usuário Invalido)
+else {
+    res.send("Usuário invalido.")
+}
+});
 });
 
+app.get("/usuarios", (req, res) => {
+    const query = "SELECT * FROM users";
+    db.all(query, (err, row) => {
+        console.log(`pages /usuarios ${JSON.stringify(row)}`)
+    res.send("Lista de usuários.")
+    })
+})
+app.get("/dashboard", (req, res) => {
+    console.log("pages /dashboard")
+    res.render("pages/dashboard", config);
+
+    const { username, password, email, tel, cpf, rg } = req.body;
+    db.get(query, [email, cpf, rg, username], (err, row) => {
+        if (err) throw err;
+
+        if (row) {
+            res.send("Usuário ja cadastrado, refaça o cadastro")
+        } else {
+            const insertQuery =  "INSERT INTO users (username, password, email, tel, cpf, rg) VALUE (?, ?, ?, ?, ?, ?)"
+        db.run(insertQuery, [username, password, email, tel, cpf, rg], (err) => {
+            if (err) throw err;
+            res.send("Usuário cadastrado com sucesso")
+         });
+        }
+    });
+});
 app.post("/cadastro",(req, res)  => {
     console.log("POST /cadastro")
 
@@ -65,13 +122,6 @@ app.post("/cadastro",(req, res)  => {
     ? console.log(`Body vazio: ${req.body}`)
     : console.log(JSON.stringify(req.body));
 
-app.get("/usuarios", (req, res) => {
-    const query = "SELECT * FROM users";
-    db.all(query, (err, row) => {
-        console.log(`GET /usuarios ${JSON.stringify(row)}`)
-    res.send("Lista de usuários.")
-    })
-})
 
     const { username, password, email, celular, cpf, rg} = req.body;
 
@@ -79,56 +129,51 @@ app.get("/usuarios", (req, res) => {
   // 1. validar cadastro
   // 2. saber se ele ja existe no banco  
 
-    const query = "SELECT * FROM users WHERE email=? OR cpf=? OR rg? OR username=?"
+    const query = "SELECT * FROM users WHERE email=? OR cpf=? OR rg? OR username=?";
     db.get(query, [email, cpf. rg. username], (err, row) => {
-if(err) throw err;
-console.log(`${JSON.stringify(row)}`)
-if(row) {
+    if(err) throw err;
+    // console.log(`${JSON.stringify(row)}`)
+    if(row) {
     // a variavel 'row' irá retornar os dados do banco de dados,
     // executado através do SQL, variável query
     res.send("Usuário ja cadastrado, refaça o cadastro")
-} else {
-// Se o usuário não existe no banco cadastrar
-const insertQuery = "INSERT INTO user(username, password, email, celular, cpf, rg) VALUES (?,?,?,?,?,?)"
-db.run(
+    } else {
+    // Se o usuário não existe no banco cadastrar
+    const insertQuery = "INSERT INTO users(username, password, email, celular, cpf, rg) VALUES (?,?,?,?,?,?)";
+    db.run(
     insertQuery,
     [username, password, email, celular, cpf, rg],
     (err) => {
         if (err) throw err;
         res.send("Usuário cadastrado, com sucesso")
-    }
-);
-}
     });
+  }
+});
 // res.send(
 // `bem-vindo usúario: ${req.body.username}, seu email e ${req.body.email}`
 //     )
 });
 
 app.get("/cadastro", (req, res) => {
-    console.log("GET /cadastro")
-    res.render("cadastro");
+    console.log("pages /cadastro")
+    res.render("pages/cadastro");
 });
 
-app.get("/dashboard", (req, res) => {
-    console.log("GET /dashboard")
-    res.send(dashboard);
-});
+// app.get("/dashboard", (req, res) => {
+//     console.log("GET /dashboard")
+//     res.send(dashboard);
+//});
 
 app.get("/home", (req, res) => {
-    console.log("GET /home")
+    console.log("pages /home")
     res.send(home);
 });
 
 app.get("/descricao", (req, res) => {
-    console.log("GET /descricao")
+    console.log("pages /descricao")
     res.send(descricao);
 })
-
-
-
 
 app.listen(PORT, () => {
     console.log(`servidor sendo executado na porta ${PORT}`);
 });
-  
