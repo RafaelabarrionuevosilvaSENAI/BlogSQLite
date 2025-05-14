@@ -1,44 +1,44 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-  <%- include('../partials/head'); %>
-    <body>
+<%- include('../partials/head'); %>
 
-    <%- include('../partials/menu') %>
-    <section class="container">
+<body>
 
-      <div class="image_container">
-<!-- <form id="cadasstroForm" action="/login" method="post"></form> -->
-      
-<h1>Bem Vindos</h1>
-        <p>
-          Compartilhe suas aventuras e <br />
-          descubra novos lugares ao redor do mundo!
-        </p>
+  <%- include('../partials/menu') %>
+  <section class="container">
+
+    <div class="image_container">
+      <h1>Bem Vindos</h1>
+      <p>
+        Compartilhe suas aventuras e <br />
+        descubra novos lugares ao redor do mundo!
+      </p>
+    </div>
+
+    <form id="cadastroForm" action="/login" method="post">
+      <div class="title">
+        <h1>Login</h1>
+        <p>Preencha os campos abaixo e entre parte da nossa comunidade</p>
       </div>
 
-      <form id="cadastroForm" action="/login" method="post">
-        <div class="title">
-          <h1>Login</h1>
-          <p>Preencha os campos abaixo e entre parte da nossa comunidade</p>
-        </div>
+      <div class="input_data">
+        <input type="text" id="nome" name="username" required />
+        <label for="">Nome</label>
+      </div>
 
-        <div class="input_data">
-          <input type="text" id="nome" name="username" required />
-          <label for="">Nome</label>
-        </div>
+      <div class="input_data">
+        <input type="password" id="password" name="password" required />
+        <label for="">Senha</label>
+      </div>
 
-        <div class="input_data">
-          <input type="password" id="password" name="password" required />
-          <label for="">Senha</label>
-        </div>
-          
-        <div class="btnArea">
-          <p class="msgError"></p>
-          <button id="btnSubmit" type="submit">Enviar</button>
-        </div> 
-      </form>
-    </section>
-    <%- include('../partials/footer') %>
-  </body>
+      <div class="btnArea">
+        <p class="msgError"></p>
+        <button id="btnSubmit" type="submit">Enviar</button>
+      </div>
+    </form>
+  </section>
+  <%- include('../partials/footer') %>
+</body>
+
 </html>
